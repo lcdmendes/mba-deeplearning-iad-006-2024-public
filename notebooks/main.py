@@ -18,7 +18,7 @@ class postReponse(BaseModel):
 @app.on_event("startup")
 async def startup_even():
     global model
-    with open("modelo_ex21a.pkl", "rb") as f:
+    with open("/app/notebooks/modelo_ex21a.pkl", "rb") as f:
         model = pk.load(f)
 
 
@@ -28,4 +28,4 @@ async def predict(file: UploadFile):
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=30000)
+    uvicorn.run(app, host="0.0.0.0", port=8000)
