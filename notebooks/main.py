@@ -36,7 +36,7 @@ async def startup_even():
 async def predict(file: UploadFile = File(...)):
 
     if file.content_type != "image/png":
-        return JSONResponse(status_code=400, content={"message": "Tipo de arquivo inválidos.Aceita apenas arquivos PNG."})
+        return JSONResponse(status_code=400, content={"message": "Tipo de arquivo inválidos. Aceita apenas arquivos PNG."})
 
     contents = await file.read()
     img = Image.open(io.BytesIO(contents))
