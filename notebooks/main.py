@@ -3,9 +3,8 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 import pickle as pk
 import uvicorn
-from PIL import Image
+from PIL import Image, ImageOps 
 import numpy as np
-import matplotlib.pyplot as plt
 import io
 
 
@@ -24,9 +23,13 @@ def rgb2gray(rgb):
 # Evento OnStart - Carrega modelo
 @app.on_event("startup")
 async def startup_even():
-    global model
-    with open("/app/notebooks/modelo_ex21a.pkl", "rb") as f:
-        model = pk.load(f)
+    global model_random_forest
+    with open("/app/notebooks/model_random_forest.pkl", "rb") as f:
+        model_random_forest = pk.load(f)
+
+    global model_xgboost
+    with open("/app/notebooks/model_xgboost.pkl", "rb") as f:
+        model_xgboost = pk.load(f)
 
 
 @app.post("/predict", response_model=postReponse)
@@ -37,15 +40,15 @@ async def predict(file: UploadFile = File(...)):
 
     contents = await file.read()
     img = Image.open(io.BytesIO(contents))
-    img = np.array(img)
+    img = img.resize((8,8))
+    img_gray = np.array(ImageOps.grayscale(img) ) * (16/255)
+    img_gray = img_gray.astype(int).astype(float)
 
-    img_gray = (np.array(rgb2gray(img)) * 17).astype(int).astype(float)
     vec = img_gray.reshape(1,-1)
 
-    predict = model.predict(vec)
+    predict = model_random_forest.predict(vec)
 
     return {"prediction": predict.item()}
-    #return {"prediction": predict}
 
 
 @app.get("/check")
